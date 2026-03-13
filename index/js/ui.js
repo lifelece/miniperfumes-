@@ -357,6 +357,46 @@ export function closeFAQ() { const backdrop = document.getElementById('faq-backd
 export function showPreview(img) { haptic('light'); const modal = document.getElementById('image-preview-modal'); const imgEl = document.getElementById('preview-img-element'); imgEl.src = img; modal.classList.remove('hidden'); void modal.offsetWidth; modal.classList.remove('opacity-0'); imgEl.classList.remove('scale-90'); imgEl.classList.add('scale-100'); }
 export function hidePreview() { const modal = document.getElementById('image-preview-modal'); const imgEl = document.getElementById('preview-img-element'); modal.classList.add('opacity-0'); imgEl.classList.remove('scale-100'); imgEl.classList.add('scale-90'); setTimeout(() => modal.classList.add('hidden'), 400); }
 
+export function openReceiptModal() { 
+    haptic('light'); 
+    logEvent('receipt_opened', {}); 
+    const modal = document.getElementById('receipt-modal'); 
+    const backdrop = document.getElementById('receipt-backdrop'); 
+    // Render Receipt Data
+    import('./cart.js').then(module => module.buildReceiptData());
+    
+    closeCartModal(); // Hide shopping cart
+    modal.classList.remove('hidden'); 
+    void modal.offsetWidth; 
+    backdrop.classList.remove('opacity-0', 'pointer-events-none'); 
+    modal.classList.remove('translate-y-full', 'pointer-events-none'); 
+    document.body.style.overflow = 'hidden'; 
+}
+
+export function closeReceiptModal() { 
+    const modal = document.getElementById('receipt-modal'); 
+    const backdrop = document.getElementById('receipt-backdrop'); 
+    backdrop.classList.add('opacity-0', 'pointer-events-none'); 
+    modal.classList.add('translate-y-full', 'pointer-events-none'); 
+    setTimeout(() => { document.body.style.overflow = ''; }, 500); 
+}
+
+// FOMO SOCIAL PROOF DYNAMIC
+export function initSocialProofFOMO() {
+    const fomoNames = ['Ana', 'María', 'Valentina', 'Carla', 'Sofia', 'Andrea'];
+    const fomoCities = ['Caracas', 'Valencia', 'Barquisimeto', 'Maracaibo', 'Lechería'];
+    const fomoActions = ['acaba de pedir una Caja x20', 'reservó una Caja x50', 'agregó al carrito perfumes Lattafa', 'subió a Nivel Mayorista'];
+
+    setInterval(() => {
+        let name = fomoNames[Math.floor(Math.random() * fomoNames.length)];
+        let city = fomoCities[Math.floor(Math.random() * fomoCities.length)];
+        let action = fomoActions[Math.floor(Math.random() * fomoActions.length)];
+        
+        let text = `🔥 ${name} de ${city} ${action}`;
+        showIOSNotification(text, 'success');
+    }, Math.floor(Math.random() * (60000 - 35000 + 1) + 35000)); // Entre 35s a 60s
+}
+
 export function togglePabbot() {
     haptic('light');
     const menu = document.getElementById('pabbot-menu');
