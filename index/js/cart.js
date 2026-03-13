@@ -269,7 +269,65 @@ export function getCustomerTier(qty) {
     return "Emprendedor";
 }
 
-export function sendWhatsAppOrder() {
+export function buildReceiptData() {
+    let totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
+    if (totalQty < 20) return;
+
+    let currentPrice = totalQty >= 100 ? PRICES.top : (totalQty >= 50 ? PRICES.mid : PRICES.base);
+    let subtotalBase = totalQty * currentPrice;
+    let premiumSurcharge = 0;
+    
+    // Asignar ID hash y fecha
+    let hashId = generateCryptoHash();
+    document.getElementById('receipt-id').innerText = hashId.substring(0, 10).toUpperCase();
+
+    const today = new Date();
+    document.getElementById('receipt-date').innerText = today.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    document.getElementById('receipt-client').innerText = `Socio ${userProfile.id} (${getCustomerTier(totalQty)})`;
+
+    let payText = paymentMethod === 'zelle' ? "Zelle / BOFA" : (paymentMethod === 'crypto' ? 'USDT / Binance' : 'Pago Móvil / Efectivo');
+    document.getElementById('receipt-payment').innerText = payText;
+    document.getElementById('receipt-qty').innerText = `${totalQty} unidades`;
+
+    let htmlItems = "";
+    for (let id in cart) {
+        if (cart[id] > 0) {
+            const prod = getProductById(id);
+            if (prod) {
+                if (prod.isPremium) premiumSurcharge += cart[id] * 1.80;
+                let isPremiumText = prod.isPremium ? '<span class="text-[8px] text-white bg-[#8A2BE2] px-1 rounded ml-1">LUJO</span>' : '';
+                htmlItems += `
+                <div class="flex items-center gap-3">
+                    <img src="${prod.img}" referrerpolicy="no-referrer" class="w-10 h-10 rounded-lg object-cover bg-gray-100 shrink-0 border border-gray-100">
+                    <div class="flex-1">
+                        <p class="text-xs font-bold text-textMain leading-tight">${prod.name} ${isPremiumText}</p>
+                        <p class="text-[9px] text-textLight">Cant: ${cart[id]}</p>
+                    </div>
+                    <div class="text-xs font-black text-textMain">$${(cart[id] * currentPrice + (prod.isPremium ? cart[id] * 1.80 : 0)).toFixed(2)}</div>
+                </div>`;
+            }
+        }
+    }
+    document.getElementById('receipt-items').innerHTML = htmlItems;
+    
+    let subtotal = subtotalBase + premiumSurcharge;
+    let discount = (paymentMethod === 'zelle' || paymentMethod === 'crypto') ? (subtotal * 0.05) : 0;
+    let total = subtotal - discount;
+
+    const discountRow = document.getElementById('receipt-discount-row');
+    if (discount > 0) {
+        discountRow.classList.remove('hidden');
+        discountRow.classList.add('flex');
+        document.getElementById('receipt-discount').innerText = `-$${discount.toFixed(2)}`;
+    } else {
+        discountRow.classList.add('hidden');
+        discountRow.classList.remove('flex');
+    }
+
+    document.getElementById('receipt-total').innerText = `$${total.toFixed(2)}`;
+}
+
+export function confirmWhatsApp() {
     haptic('success');
     let totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
     if (totalQty < 20) return;
@@ -298,8 +356,6 @@ export function sendWhatsAppOrder() {
     if (paymentMethod === 'zelle') payText = "Zelle (Dcto Aplicado ✅)";
     if (paymentMethod === 'crypto') payText = "USDT / Binance Pay (Dcto Aplicado ✅)";
 
-    let tier = getCustomerTier(totalQty);
-    let hashId = generateCryptoHash();
     let bonusText = (totalQty >= 50) ? "%0A🎁 *BONO DESBLOQUEADO:* Bolsas de entrega" : "";
     let premiumText = premiumSurcharge > 0 ? `%0A- Recargo Aromas Premium: +$${premiumSurcharge.toFixed(2)}` : "";
 
@@ -334,9 +390,14 @@ export function sendWhatsAppOrder() {
         introText = `¡Importación mayorista! Socio *${userProfile.id}* - Premium.%0AOrden grande lista para confirmar y facturar.`;
     }
 
-    const text = `${introText}%0A%0A🌐 *ORIGEN:* Web App CBO%0A%0A📦 *MI LISTA:*%0A${orderDetails}%0A📊 *RESUMEN:*%0A- Total Piezas: ${totalQty}${premiumText}%0A- Método: ${payText}%0A- Total a Pagar: *$${total.toFixed(2)}*${bonusText}%0A%0A🔐 *HASH:* ${hashId.substring(0,12)}...`;
+    const hashId = document.getElementById('receipt-id').innerText;
+    const text = `${introText}%0A%0A🌐 *ORIGEN:* Web App CBO%0A%0A📦 *MI LISTA:*%0A${orderDetails}%0A📊 *RESUMEN:*%0A- Total Piezas: ${totalQty}${premiumText}%0A- Método: ${payText}%0A- Total a Pagar: *$${total.toFixed(2)}*${bonusText}%0A%0A🔐 *HASH OFICIAL:* ${hashId}`;
     
     window.open(`https://wa.me/584141087079?text=${text}`, '_blank');
 
-    setTimeout(clearCartSilent, 2000);
+    setTimeout(() => {
+        // En lugar de importación circular, enviamos un custom event que UI.js escuche
+        document.dispatchEvent(new CustomEvent('cbo-receipt-close'));
+        clearCartSilent();
+    }, 2000);
 }
