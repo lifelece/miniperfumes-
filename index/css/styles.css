@@ -1,0 +1,44 @@
+        body { background-color: #F2F2F7; color: #1C1C1E; -webkit-font-smoothing: antialiased; overflow-x: hidden; padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .snap-x-mandatory { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
+        
+        /* TRANSICIONES SPRING GLOBALES */
+        * { transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1) !important; }
+        
+        .apple-glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+        .apple-glass-dark { background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 0.5px solid rgba(255,255,255,0.1); }
+        .pop-anim { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        
+        /* STAGGER ANIMATION PARA PRODUCT CARDS */
+        @keyframes fadeUpStagger { 
+            from { opacity: 0; transform: translateY(20px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        .product-card { 
+            animation: fadeUpStagger 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; 
+        }
+
+        /* CUSTOM PULSE WHATSAPP Y MODALES DE ENFOQUE */
+        @keyframes heartPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        .animate-pulse-heart { animation: heartPulse 2s infinite; }
+        .blur-sm { filter: blur(4px); }
+        
+        /* CARRITO SLIDE UP SPRING */
+        #sticky-cart {
+            transition: transform 0.8s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.8s cubic-bezier(0.32, 0.72, 0, 1) !important;
+        }
+
+        .progress-bar-fill { transition: width 0.8s cubic-bezier(0.32, 0.72, 0, 1); }
+        
+        /* Animación para el banner de prueba social */
+        .marquee-container { overflow: hidden; white-space: nowrap; }
+        .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
