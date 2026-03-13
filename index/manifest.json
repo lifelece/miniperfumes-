@@ -1,0 +1,21 @@
+{
+  "name": "MiniPerfumes CBO",
+  "short_name": "CBO",
+  "description": "Tu surtido mayorista perfecto de perfumería árabe y premium a un toque. Emprende desde donde estés.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F2F2F7",
+  "theme_color": "#007AFF",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/8.x/shapes/svg?seed=cbo-perfumes&backgroundColor=007AFF&shape1Color=ffffff",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/8.x/shapes/svg?seed=cbo-perfumes&backgroundColor=007AFF&shape1Color=ffffff",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
